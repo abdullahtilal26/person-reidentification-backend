@@ -101,7 +101,7 @@ const deleteUserById = async (user_id) => {
 };
 
 const updateUserRecord = async (user) => {
-  const { user_id, email, name } = req.body;
+  const { user_id, email, name } = user;
   const updateUser = await User.update(
     {
       email: email,
