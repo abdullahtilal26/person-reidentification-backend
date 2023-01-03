@@ -1,12 +1,15 @@
-const { createUser } = require("../services/userService");
+const {
+  createUser,
+  sendEmail,
+  getUserByEmail,
+} = require("../services/userService");
 
 const addUser = async (req, res) => {
-  const { user_id, name, email, password } = req.body;
-  if (!user_id || !name || !email || !password)
+  const { name, email, password } = req.body;
+  if (!name || !email || !password)
     return res.status(400).json({ message: "Fields are empty", status: false });
 
   const _user = {
-    user_id: user_id,
     name: name,
     email: email,
     password: password,
@@ -22,4 +25,34 @@ const addUser = async (req, res) => {
   }
 };
 
-module.exports = { addUser };
+const mailCredentialsToUser = async (req, res) => {
+  const { email } = req.body;
+  const _user = await getUserByEmail(email);
+  if (!_user) {
+    return res
+      .status(400)
+      .json({ message: "User doesnot exist", status: false });
+  }
+  const userPassword = _user.dataValues.password;
+  const subject = "Login Credentials";
+  const mailMessage = `${email} your password is ${userPassword}`;
+
+  const mail = await sendEmail(
+    process.env.EMAIL,
+    process.env.EMAIL_PASSWORD,
+    email,
+    subject,
+    mailMessage
+  );
+  if (!mail.status) {
+    return res
+      .status(400)
+      .json({ message: "Mail sending failed", status: false });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "Mail send successfully", status: true });
+  }
+};
+
+module.exports = { addUser, mailCredentialsToUser };
