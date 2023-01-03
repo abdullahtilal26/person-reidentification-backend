@@ -41,6 +41,11 @@ const getUserPassword = async (email) => {
   return user ? user.dataValues.password : null;
 };
 
+const getAllUsers = async () => {
+  const users = await User.findAll().catch(errorHandler);
+  return users ? users : null;
+}
+
 const sendEmail = async (
   hostEmail,
   hostPassword,
@@ -83,4 +88,4 @@ const sendEmail = async (
   });
 };
 
-module.exports = { createUser, getUserByEmail, sendEmail };
+module.exports = { createUser, getUserByEmail, sendEmail, getAllUsers};
