@@ -2,7 +2,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const cors = require("cors");
-const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const db = require("../models/index");
 
@@ -19,13 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  session({
-    secret: process.env.SESSION_SECRETKEY,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+
 // database connection
 db.sequelize.sync();
 
