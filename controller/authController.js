@@ -17,9 +17,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: false,
     });
-    return res
-      .status(200)
-      .json({ message: "Login Successful!", status: true });
+    return res.status(200).json({ message: "Login Successful!", status: true });
   } else {
     return res
       .status(400)
@@ -27,4 +25,12 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login };
+const logout = (req, res) => {
+  if (req.cookies.authToken) {
+    res.clearCookie("authToken");
+    return res.status(200).json({ status: true });
+  }
+  return res.status(400).json({ status: false });
+};
+
+module.exports = { login, logout };
