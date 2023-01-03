@@ -2,6 +2,7 @@ const {
   createUser,
   sendEmail,
   getUserByEmail,
+  getAllUsers,
 } = require("../services/userService");
 
 const addUser = async (req, res) => {
@@ -55,4 +56,13 @@ const mailCredentialsToUser = async (req, res) => {
   }
 };
 
-module.exports = { addUser, mailCredentialsToUser };
+const getUsers = async (req, res) => {
+  const usersData = await getAllUsers();
+  if (!usersData) {
+    return res.status(400).json({message: "No users found", status: false})
+  } else {
+    console.log(usersData);
+    return res.status(200).json({message: usersData, status: true})
+  }
+}
+module.exports = { addUser, mailCredentialsToUser, getUsers };
