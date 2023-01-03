@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { login } = require("../controller/authController");
+const { login, logout } = require("../controller/authController");
 
 router.route("/login").post(login);
-
+router.route("/logout").get(logout);
 module.exports = router;
