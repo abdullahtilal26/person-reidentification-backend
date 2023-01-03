@@ -35,16 +35,19 @@ const getUserByEmail = async (_email) => {
   return user ? user : null;
 };
 
-const getUserPassword = async (email) => {
-  const user = await getUserByEmail(email);
-  if (!user) return null;
-  return user ? user.dataValues.password : null;
+const getUserById = async (user_id) => {
+  const user = await User.findOne({
+    where: {
+      user_id: user_id,
+    },
+  }).catch(errorHandler);
+  return user ? true : false;
 };
 
 const getAllUsers = async () => {
   const users = await User.findAll().catch(errorHandler);
   return users ? users : null;
-}
+};
 
 const sendEmail = async (
   hostEmail,
@@ -88,4 +91,20 @@ const sendEmail = async (
   });
 };
 
-module.exports = { createUser, getUserByEmail, sendEmail, getAllUsers};
+const deleteUserById = async (user_id) => {
+  const _user = await User.destroy({
+    where: {
+      user_id: parseInt(user_id),
+    },
+  }).catch(errorHandler);
+  return _user ? true : false;
+};
+
+module.exports = {
+  createUser,
+  getUserByEmail,
+  sendEmail,
+  getAllUsers,
+  getUserById,
+  deleteUserById
+};
