@@ -5,6 +5,7 @@ const {
   getAllUsers,
   getUserById,
   deleteUserById,
+  updateUserRecord,
 } = require("../services/userService");
 
 const addUser = async (req, res) => {
@@ -89,4 +90,31 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { addUser, mailCredentialsToUser, getUsers, deleteUser };
+const updateUser = async (req, res) => {
+  const { user_id } = req.body;
+  const _userExist = await getUserById(user_id);
+  if (!_userExist) {
+    return res
+      .status(400)
+      .json({ message: "User doesnot exist", status: false });
+  }
+
+  const _userUpdated = await updateUserRecord(req.body);
+  if (!_userUpdated) {
+    return res
+      .status(400)
+      .json({ message: "User update failed", status: false });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "User updated successfully", status: true });
+  }
+};
+
+module.exports = {
+  addUser,
+  mailCredentialsToUser,
+  getUsers,
+  deleteUser,
+  updateUser,
+};
