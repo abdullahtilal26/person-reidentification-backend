@@ -100,11 +100,28 @@ const deleteUserById = async (user_id) => {
   return _user ? true : false;
 };
 
+const updateUserRecord = async (user) => {
+  const { user_id, email, name } = req.body;
+  const updateUser = await User.update(
+    {
+      email: email,
+      name: name,
+    },
+    {
+      where: {
+        user_id: user_id,
+      },
+    }
+  ).catch(errorHandler);
+  return updateUser ? true : false;
+};
+
 module.exports = {
   createUser,
   getUserByEmail,
   sendEmail,
   getAllUsers,
   getUserById,
-  deleteUserById
+  deleteUserById,
+  updateUserRecord,
 };
