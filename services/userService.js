@@ -109,7 +109,7 @@ const updateUserRecord = async (user) => {
     },
     {
       where: {
-        user_id: user_id,
+        user_id: parseInt(user_id),
       },
     }
   ).catch(errorHandler);
