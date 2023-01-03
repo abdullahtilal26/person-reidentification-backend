@@ -3,6 +3,8 @@ const {
   sendEmail,
   getUserByEmail,
   getAllUsers,
+  getUserById,
+  deleteUserById,
 } = require("../services/userService");
 
 const addUser = async (req, res) => {
@@ -59,10 +61,32 @@ const mailCredentialsToUser = async (req, res) => {
 const getUsers = async (req, res) => {
   const usersData = await getAllUsers();
   if (!usersData) {
-    return res.status(400).json({message: "No users found", status: false})
+    return res.status(400).json({ message: "No users found", status: false });
   } else {
     console.log(usersData);
-    return res.status(200).json({message: usersData, status: true})
+    return res.status(200).json({ message: usersData, status: true });
   }
-}
-module.exports = { addUser, mailCredentialsToUser, getUsers };
+};
+
+const deleteUser = async (req, res) => {
+  const { user_id } = req.body;
+  const _userExist = await getUserById(user_id);
+  if (!_userExist) {
+    return res
+      .status(400)
+      .json({ message: "User doesnot exist", status: false });
+  }
+
+  const deleteUser = await deleteUserById(user_id);
+  if (!deleteUser) {
+    return res
+      .status(400)
+      .json({ message: "User delete failed", status: false });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "User deleted successfully", status: true });
+  }
+};
+
+module.exports = { addUser, mailCredentialsToUser, getUsers, deleteUser };
