@@ -8,6 +8,7 @@ const {
   createDirectory,
   getDirectoryByIdAndPath,
   deleteDirectory,
+  getAllDirectoriesById,
 } = require("../services/manageVideosService");
 
 const directoryPath = "../person-reidentification-backend/public/upload";
@@ -111,6 +112,7 @@ const deleteDirectoryOnServer = async (req, res) => {
   }
 };
 
+<<<<<<< .merge_file_a01640
 const uploadVideoOnServerDirectory = async (req, res) => {
   let userId = "";
   let folderName = "";
@@ -174,10 +176,31 @@ const uploadVideoOnServerDirectory = async (req, res) => {
   });
 
   req.pipe(busboy);
+=======
+const getDirectoriesOnServer = async (req, res) => {
+  const userId = req.body.userId;
+  const _directories = await getAllDirectoriesById(userId);
+  if (!_directories || _directories.length == 0)
+    return res
+      .status(404)
+      .json({ message: "No directories exist", status: false });
+  else {
+    let directoriesName = [];
+    _directories.forEach((element) => {
+      let path = element.dataValues.dirpath;
+      directoriesName.push(path);
+    });
+    return res.status(200).json({ message: directoriesName, status: true });
+  }
+>>>>>>> .merge_file_a12768
 };
 
 module.exports = {
   createDirectoryOnServer,
   deleteDirectoryOnServer,
+<<<<<<< .merge_file_a01640
   uploadVideoOnServerDirectory,
+=======
+  getDirectoriesOnServer,
+>>>>>>> .merge_file_a12768
 };
