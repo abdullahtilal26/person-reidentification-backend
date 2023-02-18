@@ -2,6 +2,7 @@ const fs = require("fs");
 const fsa = require("fs").promises;
 const path = require("path");
 const util = require("util");
+const Busboy = require("busboy");
 
 const {
   createDirectory,
@@ -9,7 +10,7 @@ const {
   deleteDirectory,
 } = require("../services/manageVideosService");
 
-const directoryPath = "../backend/public/upload";
+const directoryPath = "../person-reidentification-backend/public/upload";
 const mkdir = util.promisify(fs.mkdir);
 
 const makeDirectory = async (dirPath) => {
@@ -110,4 +111,73 @@ const deleteDirectoryOnServer = async (req, res) => {
   }
 };
 
-module.exports = { createDirectoryOnServer, deleteDirectoryOnServer };
+const uploadVideoOnServerDirectory = async (req, res) => {
+  let userId = "";
+  let folderName = "";
+
+  const busboy = Busboy({ headers: req.headers });
+
+  let chunkFile = [];
+  async function handleError(fn) {
+    try {
+      await fn();
+    } catch (e) {
+      req.unpipe(busboy);
+
+      next(e);
+    }
+  }
+
+  busboy.on("field", (name, value) => {
+    handleError(() => {
+      // process fields
+      if (name === "userId") {
+        userId = value;
+      }
+    });
+  });
+
+  busboy.on("field", (name, value) => {
+    handleError(() => {
+      // process fields
+      if (name === "folderName") {
+        folderName = value;
+      }
+    });
+  });
+  busboy.on("file", (name, stream, filename, encoding, contentType) => {
+    handleError(() => {
+      const time = new Date();
+      filename.filename = time.getTime() + "_" + filename.filename;
+
+      let uploadPath =
+        directoryPath +
+        "/" +
+        userId +
+        "_" +
+        folderName +
+        "/" +
+        filename.filename;
+
+      stream.on("data", (chunk) => {
+        chunkFile.push(chunk);
+      });
+      stream.pipe(fs.createWriteStream(uploadPath));
+    });
+  });
+  busboy.on("finish", () => {
+    handleError(() => {
+      // send response
+      console.log("File  upload Finish For User", userId);
+      return res.json({ message: "Success Upload Against User ", userId });
+    });
+  });
+
+  req.pipe(busboy);
+};
+
+module.exports = {
+  createDirectoryOnServer,
+  deleteDirectoryOnServer,
+  uploadVideoOnServerDirectory,
+};
