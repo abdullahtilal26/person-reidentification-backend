@@ -112,7 +112,6 @@ const deleteDirectoryOnServer = async (req, res) => {
   }
 };
 
-<<<<<<< .merge_file_a01640
 const uploadVideoOnServerDirectory = async (req, res) => {
   let userId = "";
   let folderName = "";
@@ -176,7 +175,8 @@ const uploadVideoOnServerDirectory = async (req, res) => {
   });
 
   req.pipe(busboy);
-=======
+};
+
 const getDirectoriesOnServer = async (req, res) => {
   const userId = req.body.userId;
   const _directories = await getAllDirectoriesById(userId);
@@ -192,15 +192,11 @@ const getDirectoriesOnServer = async (req, res) => {
     });
     return res.status(200).json({ message: directoriesName, status: true });
   }
->>>>>>> .merge_file_a12768
 };
 
 module.exports = {
   createDirectoryOnServer,
   deleteDirectoryOnServer,
-<<<<<<< .merge_file_a01640
   uploadVideoOnServerDirectory,
-=======
   getDirectoriesOnServer,
->>>>>>> .merge_file_a12768
 };
