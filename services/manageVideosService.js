@@ -5,6 +5,7 @@ const errorHandler = (err) => {
   console.log("Error:\n", err);
 };
 
+// get Directory
 const getDirectoryByIdAndPath = async (userId, directoryPath) => {
   const _directory = await Directories.findOne({
     where: {
