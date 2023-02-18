@@ -9,5 +9,3 @@ router.route("/deleteuser").delete(deleteUser);
 router.route("/updateuser").put(updateUser);
 
 module.exports = router;
-// const { addEmailToRole } = require("../services/authRoleService");
-// router.route("/do").post(addEmailToRole);
