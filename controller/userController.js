@@ -7,6 +7,7 @@ const {
   createDirectory,
   getDirectoryByIdAndPath,
   deleteDirectory,
+  getAllDirectoriesById,
 } = require("../services/manageVideosService");
 
 const directoryPath = "../backend/public/upload";
@@ -110,4 +111,25 @@ const deleteDirectoryOnServer = async (req, res) => {
   }
 };
 
-module.exports = { createDirectoryOnServer, deleteDirectoryOnServer };
+const getDirectoriesOnServer = async (req, res) => {
+  const userId = req.body.userId;
+  const _directories = await getAllDirectoriesById(userId);
+  if (!_directories || _directories.length == 0)
+    return res
+      .status(404)
+      .json({ message: "No directories exist", status: false });
+  else {
+    let directoriesName = [];
+    _directories.forEach((element) => {
+      let path = element.dataValues.dirpath;
+      directoriesName.push(path);
+    });
+    return res.status(200).json({ message: directoriesName, status: true });
+  }
+};
+
+module.exports = {
+  createDirectoryOnServer,
+  deleteDirectoryOnServer,
+  getDirectoriesOnServer,
+};
