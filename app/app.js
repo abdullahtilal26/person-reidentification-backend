@@ -35,7 +35,7 @@ db.sequelize
   });
 
 // routes
-app.use("/user", userRoute);
+app.use("/user", validateToken, userRoute);
 app.use("/auth", authRoute);
 app.use("/admin", validateToken, validRole, adminRoute);
 

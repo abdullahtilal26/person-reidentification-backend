@@ -15,13 +15,14 @@ const validateToken = (req, res, next) => {
   }
   try {
     const validToken = jwt.verify(accessToken, process.env.SECRETKEY);
+    console.log("ValidToken: ", validToken);
     if (validToken) {
-      console.log(validToken);
-      req.userEmail = validToken;
-      console.log(req.userEmail);
+      req.user = validToken;
+      console.log("UserBody: ", req.user);
       return next();
     }
   } catch (err) {
+    console.log(err)
     return res
       .status(400)
       .json({ message: "Authentication Failed", status: false });

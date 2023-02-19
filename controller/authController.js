@@ -11,7 +11,7 @@ const login = async (req, res) => {
 
   if (user) {
     await bcrypt.compare(password, user.dataValues.password);
-    const accessToken = createToken(email);
+    const accessToken = createToken(JSON.stringify(user));
     res.cookie("authToken", accessToken, {
       maxAge: 180000,
       httpOnly: true,

@@ -11,7 +11,7 @@ const {
   getAllDirectoriesById,
 } = require("../services/manageVideosService");
 
-const directoryPath = "../person-reidentification-backend/public/upload";
+const directoryPath = "../backend/public/upload";
 const mkdir = util.promisify(fs.mkdir);
 
 const makeDirectory = async (dirPath) => {
@@ -32,7 +32,7 @@ const isDirectoryExist = async (userId, dirPath) => {
 
 const createDirectoryOnServer = async (req, res) => {
   const directoryName = req.body.directoryName;
-  const userId = req.body.userId;
+  const userId = req.user.user_id;
   let dirPath = directoryPath + "/" + userId + "_" + directoryName;
 
   const isDir = await isDirectoryExist(userId, dirPath);
@@ -83,7 +83,7 @@ const deleteOnServer = async (dirPath) => {
 
 const deleteDirectoryOnServer = async (req, res) => {
   const directoryName = req.body.directoryName;
-  const userId = req.body.userId;
+  const userId = req.user.user_id;
   let dirPath = directoryPath + "/" + userId + "_" + directoryName;
 
   const _exist = await isDirectoryExist(userId, dirPath);
@@ -178,7 +178,7 @@ const uploadVideoOnServerDirectory = async (req, res) => {
 };
 
 const getDirectoriesOnServer = async (req, res) => {
-  const userId = req.body.userId;
+  const userId = req.user.user_id;
   const _directories = await getAllDirectoriesById(userId);
   if (!_directories || _directories.length == 0)
     return res
