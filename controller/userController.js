@@ -1,7 +1,4 @@
 const fs = require("fs");
-const fsa = require("fs").promises;
-const path = require("path");
-const util = require("util");
 const Busboy = require("busboy");
 
 const {
@@ -10,20 +7,12 @@ const {
   deleteDirectory,
   getAllDirectoriesById,
 } = require("../services/manageVideosService");
+const {
+  makeDirectory,
+  deleteOnServer,
+} = require("../services/directoryService");
 
-const directoryPath = "../backend/public/upload";
-const mkdir = util.promisify(fs.mkdir);
-
-const makeDirectory = async (dirPath) => {
-  try {
-    await mkdir(dirPath);
-    console.log("Directory created successfully!");
-    return true;
-  } catch (err) {
-    console.error(err);
-    return false;
-  }
-};
+const directoryPath = process.env.UPLOAD_DIRECTORY;
 
 const isDirectoryExist = async (userId, dirPath) => {
   const _exist = await getDirectoryByIdAndPath(userId, dirPath);
@@ -59,28 +48,6 @@ const createDirectoryOnServer = async (req, res) => {
       .json({ message: "Directory created successfully!", status: true });
 };
 
-const deleteOnServer = async (dirPath) => {
-  try {
-    const files = await fsa.readdir(dirPath);
-    for (const file of files) {
-      const filePath = `${dirPath}/${file}`;
-      const fileStat = await fsa.stat(filePath);
-      if (fileStat.isDirectory()) {
-        await deleteDirectory(filePath);
-      } else {
-        await fsa.unlink(filePath);
-      }
-    }
-
-    await fsa.rmdir(dirPath);
-    console.log("Directory deleted successfully");
-    return true;
-  } catch (err) {
-    console.error("Error while deleting directory", err);
-    return false;
-  }
-};
-
 const deleteDirectoryOnServer = async (req, res) => {
   const directoryName = req.body.directoryName;
   const userId = req.user.user_id;
@@ -113,7 +80,7 @@ const deleteDirectoryOnServer = async (req, res) => {
 };
 
 const uploadVideoOnServerDirectory = async (req, res) => {
-  let userId = "";
+  let userId = req.user.user_id;
   let folderName = "";
 
   const busboy = Busboy({ headers: req.headers });
@@ -132,20 +99,12 @@ const uploadVideoOnServerDirectory = async (req, res) => {
   busboy.on("field", (name, value) => {
     handleError(() => {
       // process fields
-      if (name === "userId") {
-        userId = value;
-      }
-    });
-  });
-
-  busboy.on("field", (name, value) => {
-    handleError(() => {
-      // process fields
       if (name === "folderName") {
         folderName = value;
       }
     });
   });
+  
   busboy.on("file", (name, stream, filename, encoding, contentType) => {
     handleError(() => {
       const time = new Date();
@@ -194,9 +153,33 @@ const getDirectoriesOnServer = async (req, res) => {
   }
 };
 
+const uploadQueryImage = (req, res) => {
+  if (!req.file) {
+    console.log("No file received");
+    return res.status(404).json({
+      status: false,
+    });
+  } else {
+    console.log("file received", req.file);
+    return res.status(200).json({
+      status: true,
+    });
+  }
+};
+
+const deleteQueryImage = async (req, res) => {
+  const crop = process.env.CROP;
+  const folder = crop + req.user.user_id;
+  const isDeleted = await deleteOnServer(folder);
+  if (isDeleted) return res.status(200).json({ status: true });
+  else return res.status(404).json({ status: false });
+};
+
 module.exports = {
   createDirectoryOnServer,
   deleteDirectoryOnServer,
   uploadVideoOnServerDirectory,
   getDirectoriesOnServer,
+  uploadQueryImage,
+  deleteQueryImage,
 };
