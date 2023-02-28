@@ -7,6 +7,7 @@ const {
   getDirectoriesOnServer,
   uploadQueryImage,
   deleteQueryImage,
+  uploadFilesFromFolderToFlaskServer,
 } = require("../controller/userController");
 
 const { fileStorage } = require("../middleware/cropImageUpload");
@@ -25,4 +26,6 @@ router
   .route("/cropQuery")
   .post(upload.single("query"), uploadQueryImage)
   .delete(deleteQueryImage);
+
+router.route("/copy").post(uploadFilesFromFolderToFlaskServer);
 module.exports = router;

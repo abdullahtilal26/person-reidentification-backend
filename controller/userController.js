@@ -78,7 +78,19 @@ const deleteDirectoryOnServer = async (req, res) => {
       .json({ message: "Directory deleted successfully", status: true });
   }
 };
+const uploadFileToFlask = () => {};
+const uploadFilesFromFolderToFlaskServer = async (req, res) => {
+  const { folderName } = req.body;
+  const userId = req.user.user_id;
+  const readPath = directoryPath + "/" + userId + "_" + folderName;
 
+  fs.cp(readPath, "../flask/upload", { recursive: true }, (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+  res.send("copy");
+};
 const uploadVideoOnServerDirectory = async (req, res) => {
   let userId = req.user.user_id;
   let folderName = "";
@@ -104,7 +116,7 @@ const uploadVideoOnServerDirectory = async (req, res) => {
       }
     });
   });
-  
+
   busboy.on("file", (name, stream, filename, encoding, contentType) => {
     handleError(() => {
       const time = new Date();
@@ -182,4 +194,5 @@ module.exports = {
   getDirectoriesOnServer,
   uploadQueryImage,
   deleteQueryImage,
+  uploadFilesFromFolderToFlaskServer,
 };
