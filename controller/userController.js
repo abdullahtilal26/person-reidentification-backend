@@ -1,5 +1,6 @@
 const fs = require("fs");
 const Busboy = require("busboy");
+const path = require("path");
 
 const {
   createDirectory,
@@ -165,6 +166,35 @@ const getDirectoriesOnServer = async (req, res) => {
   }
 };
 
+const getVideosNameFromDirectory = async (req, res) => {
+  const folderName = req.body.directory;
+  const directoryName =
+    directoryPath + "/" + req.user.user_id + "_" + folderName;
+
+  const _isDirectory = await isDirectoryExist(req.user.user_id, directoryName);
+  if (!_isDirectory)
+    return res
+      .status(404)
+      .json({ message: "No directories exist", status: false });
+  fs.readdir(directoryName, (err, files) => {
+    if (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .joson({ message: "Server error", status: false });
+    }
+    const videos = files.filter(
+      (file) => path.extname(file).toLowerCase() === ".mp4"
+    ); 
+    if (videos.length > 0)
+      return res.status(200).json({ videos: videos, status: true });
+    else
+      return res
+        .status(404)
+        .json({ message: "No videos exist", status: false });
+  });
+};
+
 const uploadQueryImage = (req, res) => {
   if (!req.file) {
     console.log("No file received");
@@ -195,4 +225,5 @@ module.exports = {
   uploadQueryImage,
   deleteQueryImage,
   uploadFilesFromFolderToFlaskServer,
+  getVideosNameFromDirectory,
 };

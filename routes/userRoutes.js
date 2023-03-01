@@ -8,6 +8,7 @@ const {
   uploadQueryImage,
   deleteQueryImage,
   uploadFilesFromFolderToFlaskServer,
+  getVideosNameFromDirectory,
 } = require("../controller/userController");
 
 const { fileStorage } = require("../middleware/cropImageUpload");
@@ -21,6 +22,8 @@ router
   .get(getDirectoriesOnServer);
 
 router.route("/uploadVideo").post(uploadVideoOnServerDirectory);
+
+router.route("/getVideosFileNames").get(getVideosNameFromDirectory);
 
 router
   .route("/cropQuery")
