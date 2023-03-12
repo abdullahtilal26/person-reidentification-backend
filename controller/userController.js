@@ -11,6 +11,8 @@ const {
 const {
   makeDirectory,
   deleteOnServer,
+  getVideosListFromDirectory,
+  CopyVideosToFlaskServerDirectory,
 } = require("../services/directoryService");
 
 const directoryPath = process.env.UPLOAD_DIRECTORY;
@@ -79,19 +81,7 @@ const deleteDirectoryOnServer = async (req, res) => {
       .json({ message: "Directory deleted successfully", status: true });
   }
 };
-const uploadFileToFlask = () => {};
-const uploadFilesFromFolderToFlaskServer = async (req, res) => {
-  const { folderName } = req.body;
-  const userId = req.user.user_id;
-  const readPath = directoryPath + "/" + userId + "_" + folderName;
 
-  fs.cp(readPath, "../flask/upload", { recursive: true }, (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
-  res.send("copy");
-};
 const uploadVideoOnServerDirectory = async (req, res) => {
   let userId = req.user.user_id;
   let folderName = "";
@@ -162,37 +152,28 @@ const getDirectoriesOnServer = async (req, res) => {
       let path = element.dataValues.dirpath;
       directoriesName.push(path);
     });
-    return res.status(200).json({ message: directoriesName, status: true });
+    return res.status(200).json({
+      directoriesName: directoriesName,
+      directories: _directories,
+      status: true,
+    });
   }
 };
 
-const getVideosNameFromDirectory = async (req, res) => {
-  const folderName = req.body.directory;
-  const directoryName =
-    directoryPath + "/" + req.user.user_id + "_" + folderName;
-
-  const _isDirectory = await isDirectoryExist(req.user.user_id, directoryName);
-  if (!_isDirectory)
-    return res
-      .status(404)
-      .json({ message: "No directories exist", status: false });
-  fs.readdir(directoryName, (err, files) => {
-    if (err) {
+const getVideosURLPathFromDirectory = async (req, res) => {
+  const dirName = req.user.user_id + "_" + req.body.dirName;
+  let folder = path.join(directoryPath + "/" + dirName);
+  let videosList = null;
+  console.log(folder);
+  await getVideosListFromDirectory(folder)
+    .then((videos) => {
+      videosList = videos;
+      return res.status(200).json({ videos: videosList, status: true });
+    })
+    .catch((err) => {
       console.error(err);
-      return res
-        .status(500)
-        .joson({ message: "Server error", status: false });
-    }
-    const videos = files.filter(
-      (file) => path.extname(file).toLowerCase() === ".mp4"
-    ); 
-    if (videos.length > 0)
-      return res.status(200).json({ videos: videos, status: true });
-    else
-      return res
-        .status(404)
-        .json({ message: "No videos exist", status: false });
-  });
+      return res.status(404).json({ messsage: "Error", status: false });
+    });
 };
 
 const uploadQueryImage = (req, res) => {
@@ -217,13 +198,30 @@ const deleteQueryImage = async (req, res) => {
   else return res.status(404).json({ status: false });
 };
 
+const uploadFilesFromFolderToFlaskServer = async (req, res) => {
+  const { folderName } = req.body;
+  const userId = req.user.user_id;
+  const sourceDir = directoryPath + "/" + userId + "_" + folderName;
+  const targetDir = process.env.FLASK_UPLOAD_PATH;
+
+  await CopyVideosToFlaskServerDirectory(sourceDir, targetDir)
+    .then((result) => {
+      if (result)
+        return res.status(200).json({ message: result, status: true });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(404).json({ messsage: "Error", status: false });
+    });
+};
+
 module.exports = {
   createDirectoryOnServer,
   deleteDirectoryOnServer,
-  uploadVideoOnServerDirectory,
   getDirectoriesOnServer,
+  uploadVideoOnServerDirectory,
+  getVideosURLPathFromDirectory,
   uploadQueryImage,
   deleteQueryImage,
   uploadFilesFromFolderToFlaskServer,
-  getVideosNameFromDirectory,
 };
