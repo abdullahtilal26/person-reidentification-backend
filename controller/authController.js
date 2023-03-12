@@ -13,7 +13,7 @@ const login = async (req, res) => {
     await bcrypt.compare(password, user.dataValues.password);
     const accessToken = createToken(JSON.stringify(user));
     res.cookie("authToken", accessToken, {
-      maxAge: 180000,
+      maxAge: 1800000,
       httpOnly: true,
       secure: false,
     });
